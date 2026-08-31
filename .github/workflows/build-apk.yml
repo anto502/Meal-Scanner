@@ -38,6 +38,9 @@ jobs:
       - name: Align Expo package versions
         run: npx expo install --fix
 
+      - name: Test JS bundle (real error shows here)
+        run: npx expo export --platform android --output-dir /tmp/bundle-test
+
       - name: Generate android project
         run: npx expo prebuild --platform android --no-install
 
