@@ -1,0 +1,18 @@
+{
+  "name": "meal-scanner",
+  "version": "1.1.0",
+  "private": true,
+  "main": "index.js",
+  "scripts": { "start": "expo start" },
+  "dependencies": {
+    "@expo/vector-icons": "^14.1.0",
+    "@react-native-async-storage/async-storage": "2.1.2",
+    "@react-native-google-signin/google-signin": "^13.2.0",
+    "expo": "~53.0.0",
+    "expo-apple-authentication": "~7.2.4",
+    "expo-image-picker": "~16.1.4",
+    "react": "19.0.0",
+    "react-native": "0.79.2"
+  },
+  "devDependencies": { "@babel/core": "^7.25.2" }
+}
