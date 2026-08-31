@@ -35,8 +35,11 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Generate app icons
+        run: node scripts/make-icon.js
+
       - name: Install missing Expo packages
-        run: npx expo install expo-asset
+        run: npx expo install expo-asset expo-splash-screen
 
       - name: Align Expo package versions
         run: npx expo install --fix
