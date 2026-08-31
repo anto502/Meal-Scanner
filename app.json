@@ -2,16 +2,26 @@
   "expo": {
     "name": "Meal Scanner",
     "slug": "meal-scanner",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
+    "icon": "./assets/icon.png",
     "android": {
       "package": "com.mycompany.mealscanner",
-      "permissions": ["CAMERA", "READ_MEDIA_IMAGES", "READ_EXTERNAL_STORAGE"]
+      "permissions": ["CAMERA", "READ_MEDIA_IMAGES", "READ_EXTERNAL_STORAGE"],
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#16A34A"
+      }
     },
     "plugins": [
       ["expo-image-picker", { "cameraPermission": "Allow Meal Scanner to take photos of your meals." }],
-      ["@react-native-google-signin/google-signin"]
+      ["@react-native-google-signin/google-signin"],
+      ["expo-splash-screen", {
+        "image": "./assets/splash-icon.png",
+        "imageWidth": 200,
+        "backgroundColor": "#FFFFFF"
+      }]
     ]
   }
 }
