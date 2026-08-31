@@ -38,21 +38,32 @@ jobs:
       - name: Align Expo package versions
         run: npx expo install --fix
 
-      - name: Test JS bundle (real error shows here)
+      - name: Test JS bundle
         run: npx expo export --platform android --output-dir /tmp/bundle-test
 
       - name: Generate android project
         run: npx expo prebuild --platform android --no-install
 
-      - name: Print SHA-1 fingerprint (for Google Sign-In)
-        run: |
-          keytool -list -v -keystore android/app/debug.keystore -alias androiddebugkey -storepass android -keypass android | grep SHA1 || true
-
       - name: Build release APK
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleRelease --no-daemon
+          set +e
+          ./gradlew assembleRelease --no-daemon > ../gradle-output.log 2>&1
+          code=$?
+          set -e
+          if [ $code -ne 0 ]; then
+            echo "=========================================="
+            echo "   BUILD ERROR DETAILS (copy this part)   "
+            echo "=========================================="
+            grep -n -B 40 "createBundleReleaseJsAndAssets FAILED" ../gradle-output.log | head -80 || true
+            echo "---------- WHAT WENT WRONG ----------"
+            grep -n -A 20 "What went wrong" ../gradle-output.log || true
+            echo "---------- ERROR LINES ----------"
+            grep -n -i -B 3 -A 15 -E "error:|SyntaxError|Unable to resolve|heap out of memory" ../gradle-output.log | head -100 || true
+            exit 1
+          fi
+          echo "APK build OK"
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
