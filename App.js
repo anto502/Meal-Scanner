@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Platform, StatusBar, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import {
   getApiKey, saveApiKey, getGoal, saveGoal, getMeals, addMeal, deleteMeal,
   getUser, saveUser, clearUser, getOnboarded, setOnboarded as persistOnboarded,
@@ -13,6 +12,14 @@ import OnboardingScreen from './src/screens/OnboardingScreen';
 import TodayScreen from './src/screens/TodayScreen';
 import ScanScreen from './src/screens/ScanScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
+
+// --- Google: guarded import (never crashes if native module missing) ---
+let GoogleSignin = null;
+try {
+  GoogleSignin = require('@react-native-google-signin/google-signin').GoogleSignin;
+} catch (e) {
+  GoogleSignin = null;
+}
 
 const TABS = [
   { key: 'today', label: 'Today', icon: 'today-outline' },
@@ -34,7 +41,9 @@ export default function App() {
   useEffect(() => {
     (async () => {
       try {
-        GoogleSignin.configure({ webClientId: GOOGLE_WEB_CLIENT_ID });
+        if (GoogleSignin) {
+          GoogleSignin.configure({ webClientId: GOOGLE_WEB_CLIENT_ID });
+        }
         setApiKey(await getApiKey());
         setGoal(await getGoal());
         setMeals(await getMeals());
@@ -103,7 +112,9 @@ export default function App() {
   const handleSaveKey = async (key) => { await saveApiKey(key); setApiKey(key.trim()); };
   const handleSaveGoal = async (calories) => { await saveGoal(calories); setGoal(calories); };
   const handleSignOut = async () => {
-    try { if (user.provider === 'google') await GoogleSignin.signOut(); } catch (e) {}
+    if (user.provider === 'google' && GoogleSignin) {
+      try { await GoogleSignin.signOut(); } catch (e) {}
+    }
     await clearUser();
     setUser(null);
   };
