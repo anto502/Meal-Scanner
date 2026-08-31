@@ -39,7 +39,7 @@ jobs:
         run: npx expo install --fix
 
       - name: Test JS bundle
-        run: npx expo export --platform android --output-dir /tmp/bundle-test
+        run: npx expo export --platform android --output-dir ./bundle-test
 
       - name: Generate android project
         run: npx expo prebuild --platform android --no-install
@@ -56,7 +56,7 @@ jobs:
             echo "=========================================="
             echo "   BUILD ERROR DETAILS (copy this part)   "
             echo "=========================================="
-            grep -n -B 40 "createBundleReleaseJsAndAssets FAILED" ../gradle-output.log | head -80 || true
+            grep -n -B 40 "FAILED" ../gradle-output.log | head -80 || true
             echo "---------- WHAT WENT WRONG ----------"
             grep -n -A 20 "What went wrong" ../gradle-output.log || true
             echo "---------- ERROR LINES ----------"
