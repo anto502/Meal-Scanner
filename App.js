@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Platform, StatusBar } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Platform, StatusBar, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import {
@@ -23,6 +23,7 @@ const TABS = [
 export default function App() {
   const [tab, setTab] = useState('today');
   const [ready, setReady] = useState(false);
+  const [initError, setInitError] = useState('');
   const [user, setUser] = useState(null);
   const [onboarded, setOnboarded] = useState(false);
   const [apiKey, setApiKey] = useState('');
@@ -31,19 +32,41 @@ export default function App() {
   const [profile, setProfile] = useState(null);
 
   useEffect(() => {
-    GoogleSignin.configure({ webClientId: GOOGLE_WEB_CLIENT_ID });
     (async () => {
-      setApiKey(await getApiKey());
-      setGoal(await getGoal());
-      setMeals(await getMeals());
-      setUser(await getUser());
-      setOnboarded(await getOnboarded());
-      setProfile(await getProfile());
-      setReady(true);
+      try {
+        GoogleSignin.configure({ webClientId: GOOGLE_WEB_CLIENT_ID });
+        setApiKey(await getApiKey());
+        setGoal(await getGoal());
+        setMeals(await getMeals());
+        setUser(await getUser());
+        setOnboarded(await getOnboarded());
+        setProfile(await getProfile());
+      } catch (e) {
+        setInitError(e && e.message ? String(e.message) : String(e));
+      } finally {
+        setReady(true);
+      }
     })();
   }, []);
 
-  if (!ready) return <View style={styles.loader} />;
+  if (!ready) {
+    return (
+      <View style={styles.loader}>
+        <ActivityIndicator size="large" color="#16A34A" />
+        <Text style={styles.loaderText}>Loading...</Text>
+      </View>
+    );
+  }
+
+  if (initError) {
+    return (
+      <View style={styles.loader}>
+        <Ionicons name="alert-circle-outline" size={44} color="#DC2626" />
+        <Text style={styles.errorTitle}>Startup error</Text>
+        <Text style={styles.errorMessage}>{initError}</Text>
+      </View>
+    );
+  }
 
   if (!user) {
     return (
@@ -118,7 +141,10 @@ export default function App() {
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: '#F9FAFB', paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight || 0 : 0 },
-  loader: { flex: 1, backgroundColor: '#F9FAFB' },
+  loader: { flex: 1, backgroundColor: '#F9FAFB', alignItems: 'center', justifyContent: 'center', padding: 24 },
+  loaderText: { marginTop: 12, color: '#6B7280', fontSize: 14 },
+  errorTitle: { marginTop: 12, fontSize: 18, fontWeight: '700', color: '#111827' },
+  errorMessage: { marginTop: 8, color: '#DC2626', fontSize: 13, textAlign: 'center' },
   content: { flex: 1 },
   tabBar: { flexDirection: 'row', height: 64, borderTopWidth: 1, borderTopColor: '#E5E7EB', backgroundColor: '#FFFFFF' },
   tabItem: { flex: 1, alignItems: 'center', justifyContent: 'center' },
